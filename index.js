@@ -69,6 +69,32 @@ client.on('messageCreate', (message) => {
     }
 });
 
+client.on('messageCreate', async (message) => {
+  // Must be from a bot
+  if (!message.author.bot) return;
+
+  // Check if it's the Disboard bot (username check is common)
+  const isDisboard = message.author.username.toLowerCase().includes('disboard');
+  if (!isDisboard) return;
+
+  // Check for embeds
+  if (!message.embeds || message.embeds.length === 0) return;
+
+  const embed = message.embeds[0];
+  const title = embed.title?.toLowerCase() || '';
+  const description = embed.description?.toLowerCase() || '';
+
+  const isBumpSuccess =
+    title.includes('disboard') &&
+    (description.includes('bump erfolgreich') || description.includes('schau auf disboard'));
+
+  if (isBumpSuccess) {
+    console.log('✅ Disboard bump detected! Resetting bump timer...');
+    startBumpReminderTimer();
+  }
+});
+
+
 // Function to start or reset bump reminder
 function startBumpReminderTimer() {
   if (bumpTimeout) clearTimeout(bumpTimeout);
@@ -80,20 +106,6 @@ function startBumpReminderTimer() {
     channel.send(`<@&${process.env.REMINDER_ROLE_ID}> Bump the Server!`);
   }, 2 * 60 * 60 * 1000); // 2 hours
 }
-
-// Slash command listener (including from bots like Disboard)
-client.on('interactionCreate', interaction => {
-  if (!interaction.isChatInputCommand()) return;
-
-  // Check if it's the /bump command (usually from the Disboard bot)
-  if (
-    interaction.commandName === 'bump' &&
-    interaction.user.bot === false // A user must trigger it
-  ) {
-    console.log(`📨 Detected /bump by ${interaction.user.tag}`);
-    startBumpReminderTimer();
-  }
-});
 
 // Optionally: start the reminder system only after bot starts
 startBumpReminderTimer();
