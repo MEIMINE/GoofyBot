@@ -53,6 +53,10 @@ const responses = [
       pattern: /^\s*aal[\s\.\?!]*$/i,
       reply: 'laal',
     },
+    {
+      pattern: /^\s*(ok garmin|k garmin|garmin)[\s\.\?!]*$/i,
+      reply: 'Video Speichern!',
+    },
 ];  
 
 client.on('messageCreate', (message) => {
